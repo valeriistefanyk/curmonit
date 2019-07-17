@@ -1,5 +1,5 @@
 from peewee import SqliteDatabase, Model, IntegerField, DoubleField, DateTimeField, datetime as peewee_datetime
-from config import DB_NAME, FOR_TEST_DB
+from config import DB_NAME, TEST_CUR
 
 db = SqliteDatabase(DB_NAME)
 
@@ -22,5 +22,8 @@ class ExRate(Model):
 def init_db():
     db.drop_tables(ExRate)
     ExRate.create_table()
-    ExRate.create(from_currency = FOR_TEST_DB["from_currency"], to_currency = FOR_TEST_DB["to_currency"], rate = FOR_TEST_DB["rate"])
+    ExRate.create(from_currency = TEST_CUR["USD"]["from_currency"], to_currency = TEST_CUR["USD"]["to_currency"], rate = TEST_CUR["USD"]["rate"])
+    ExRate.create(from_currency = TEST_CUR["EUR"]["from_currency"], to_currency = TEST_CUR["EUR"]["to_currency"], rate = TEST_CUR["EUR"]["rate"])
+    ExRate.create(from_currency = TEST_CUR["RUB"]["from_currency"], to_currency = TEST_CUR["RUB"]["to_currency"], rate = TEST_CUR["RUB"]["rate"])
+    ExRate.create(from_currency = TEST_CUR["TST"]["from_currency"], to_currency = TEST_CUR["TST"]["to_currency"], rate = TEST_CUR["TST"]["rate"])
     print("DB created!")

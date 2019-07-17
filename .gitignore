@@ -1,2 +1,5 @@
 env
 .vscode
+_testing.py
+app.log
+__pycache__
