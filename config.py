@@ -31,3 +31,5 @@ def logger_setup(logger_name):
     log.addHandler(fh)
     log.setLevel(LOGGER_CONFIG["level"])
     return log
+
+HTTP_TIMEOUT = 15
