@@ -7,9 +7,8 @@ class _Model(Model):
     class Meta:
         database = db
 
-class ExRate(Model):
+class ExRate(_Model):
     class Meta:
-        database = db
         db_table = "ex_rates"
         indexes = (
             (("from_currency", "to_currency"), True),
@@ -53,8 +52,8 @@ def init_db():
     ExRate.create(from_currency = CODE_DICT["USD"], to_currency = CODE_DICT["UAH"], rate = 1.0, module = "privatbank_json_api")
     ExRate.create(from_currency = CODE_DICT["EUR"], to_currency = CODE_DICT["UAH"], rate = 1.0, module = "privatbank_xml_api")
     ExRate.create(from_currency = CODE_DICT["RUB"], to_currency = CODE_DICT["UAH"], rate = 1.0, module = "monobank_api")
-    ExRate.create(from_currency = CODE_DICT["BTC"], to_currency = CODE_DICT["USD"], rate = 1.0, module = "privatbank_json_api")
     ExRate.create(from_currency = CODE_DICT["EUR"], to_currency = CODE_DICT["USD"], rate = 1.0, module = "monobank_api")
+    ExRate.create(from_currency = CODE_DICT["BTC"], to_currency = CODE_DICT["USD"], rate = 1.0, module = "privatbank_json_api")
     ExRate.create(from_currency = CODE_DICT["BTC"], to_currency = CODE_DICT["UAH"], rate = 1.0, module = "cryptonator_api")
 
 
