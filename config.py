@@ -7,13 +7,15 @@ DB_NAME = "curmonit.db"
 PRIVAT_API_JSON = "https://api.privatbank.ua/p24api/pubinfo?exchange&json&coursid=11"
 PRIVAT_API_XML = "https://api.privatbank.ua/p24api/pubinfo?exchange&coursid=11"
 MONOBANK_API_JSON = "https://api.monobank.ua/bank/currency"
+CRYPTONATOR_BTC_TO_UAH = "https://api.cryptonator.com/api/ticker/btc-uah"
 
 # для тестов
-TEST_CUR = {
-    "USD": {"from_currency": 840, "to_currency": 980, "rate": 1.0},
-    "EUR": {"from_currency": 978, "to_currency": 980, "rate": 1.0},
-    "RUB": {"from_currency": 643, "to_currency": 980, "rate": 1.0},
-    "TST": {"from_currency": 0, "to_currency": 0, "rate": 1.0}
+CODE_DICT= {
+    "USD": 840,
+    "EUR": 978,
+    "UAH": 980,
+    "RUB": 643,
+    "BTC": 1000
 }
 
 # настройки для логгирования

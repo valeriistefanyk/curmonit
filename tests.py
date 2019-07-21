@@ -1,13 +1,8 @@
 import unittest, json
 from unittest.mock import patch
 import models, requests
-from config import MONOBANK_API_JSON, PRIVAT_API_JSON, PRIVAT_API_XML
-import api.test_api as test_api
-import api.privatbank_json_api as privatbank_json_api
-import api.monobank_api as monobank_api
-import api.privatbank_xml_api as privatbank_xml_api
+from config import MONOBANK_API_JSON, PRIVAT_API_JSON, PRIVAT_API_XML, CRYPTONATOR_BTC_TO_UAH, CODE_DICT
 import api
-from config import TEST_CUR
 
 def get_privat_response(*args, **kwds):
     print("get_private_response")
@@ -23,52 +18,90 @@ class Test(unittest.TestCase):
     def setUp(self):
         models.init_db()
 
-    def test_main(self):
-        xrate = models.ExRate.get(id = 1)
-        self.assertEqual(xrate.rate, TEST_CUR["USD"]['rate'])
-        test_api.update_xrate(TEST_CUR["USD"]['from_currency'], TEST_CUR["USD"]['to_currency'])
-        xrate = models.ExRate.get(id = 1)
-        self.assertEqual(xrate.rate, 1.01)
-
-    def test_privat_json(self):
+    def test_privat_usd(self):
+        
         xrate = models.ExRate.get(id = 1)
         update_before = xrate.updated
-        self.assertEqual(xrate.rate, TEST_CUR["USD"]['rate'])
-        privatbank_json_api.PrivatJsonApi().update_xrate(TEST_CUR["USD"]['from_currency'], TEST_CUR["USD"]['to_currency'])
+        self.assertEqual(xrate.rate, 1.0)
+        
+        api.update_xrate(840, 980)
+        
         xrate = models.ExRate.get(id = 1)
+        update_after = xrate.updated
+        
+        self.assertGreater(xrate.rate, 25)
+        self.assertGreater(update_after, update_before)
+        
+        self.assertApiLog(PRIVAT_API_JSON, '{"ccy":"USD","base_ccy":"UAH",')
+
+    # def test_privat_currency_error(self):
+        
+    #     xrate = models.ExRate.get(id = 1)
+    #     self.assertEqual(xrate.rate, 1.0)
+    #     self.assertRaises(ValueError, api.update_xrate, 978, 980)
+    
+
+    def test_privat_btc(self):
+        xrate = models.ExRate.get(from_currency=CODE_DICT["BTC"], to_currency = CODE_DICT["USD"])
+        update_before = xrate.updated
+        self.assertEqual(xrate.rate, 1.0)
+        api.update_xrate(CODE_DICT["BTC"], CODE_DICT["USD"])
+        xrate = models.ExRate.get(from_currency=CODE_DICT["BTC"], to_currency = CODE_DICT["USD"])
         update_after = xrate.updated
         self.assertGreater(xrate.rate, 25)
         self.assertGreater(update_after, update_before)
         self.assertApiLog(PRIVAT_API_JSON, '{"ccy":"USD","base_ccy":"UAH",')
 
+    def test_cryptonator_btc_to_uah(self):
+        xrate = models.ExRate.get(from_currency=CODE_DICT["BTC"], to_currency = CODE_DICT["UAH"])
+        update_before = xrate.updated
+        self.assertEqual(xrate.rate, 1.0)
+        api.update_xrate(CODE_DICT["BTC"], CODE_DICT["UAH"])
+        xrate = models.ExRate.get(from_currency=CODE_DICT["BTC"], to_currency = CODE_DICT["UAH"])
+        update_after = xrate.updated
+        self.assertGreater(xrate.rate, 1000)
+        self.assertGreater(update_after, update_before)
+        self.assertApiLog(CRYPTONATOR_BTC_TO_UAH, '{"base":"BTC","target":"UAH",')
+
     def test_privat_xml(self):
         xrate = models.ExRate.get(id = 2)
         update_before = xrate.updated
-        self.assertEqual(xrate.rate, TEST_CUR["EUR"]['rate'])
-        privatbank_xml_api.PrivatXmlApi().update_xrate(TEST_CUR["EUR"]["from_currency"], TEST_CUR["EUR"]["to_currency"])
+        self.assertEqual(xrate.rate, 1.0)
+        api.update_xrate(CODE_DICT["EUR"], CODE_DICT["UAH"])
         xrate = models.ExRate.get(id = 2)
         update_after = xrate.updated
         self.assertGreater(xrate.rate, 27)
         self.assertGreater(update_after, update_before)
         self.assertApiLog(PRIVAT_API_XML, '<exchangerate ccy="EUR" base_ccy="UAH"')
 
-    def test_mono(self):
+    def test_mono_rub(self):
         xrate = models.ExRate.get(id = 3)
         update_before = xrate.updated
-        self.assertEqual(xrate.rate, TEST_CUR["RUB"]["rate"])
-        monobank_api.MonobankApi().update_xrate(TEST_CUR["RUB"]["from_currency"], TEST_CUR["RUB"]["to_currency"])
+        self.assertEqual(xrate.rate, 1.0)
+        api.update_xrate(CODE_DICT["RUB"], CODE_DICT["UAH"])
         xrate = models.ExRate.get(id = 3)
         update_after = xrate.updated
         self.assertGreater(xrate.rate, 0.3)
         self.assertGreater(update_after, update_before)
         self.assertApiLog(MONOBANK_API_JSON, '{"currencyCodeA":643,"currencyCodeB":980,')
 
+    def test_mono_eur_to_usd(self):
+        xrate = models.ExRate.get(from_currency=CODE_DICT["EUR"], to_currency = CODE_DICT["USD"])
+        update_before = xrate.updated
+        self.assertEqual(xrate.rate, 1.0)
+        api.update_xrate(978, 840)
+        xrate = models.ExRate.get(from_currency=CODE_DICT["EUR"], to_currency = CODE_DICT["USD"])
+        update_after = xrate.updated
+        self.assertGreater(xrate.rate, 0.0)
+        self.assertGreater(update_after, update_before)
+        self.assertApiLog(MONOBANK_API_JSON, '{"currencyCodeA":978,"currencyCodeB":840,')
+
     @patch('api._Api._send', new = get_privat_response)
     def test_pritvat_mock(self):
         xrate = models.ExRate.get(id = 1)
         update_before = xrate.updated
-        self.assertEqual(xrate.rate, TEST_CUR["USD"]['rate'])
-        privatbank_json_api.PrivatJsonApi().update_xrate(TEST_CUR["USD"]['from_currency'], TEST_CUR["USD"]['to_currency'])
+        self.assertEqual(xrate.rate, 1.0)
+        api.update_xrate(CODE_DICT["USD"], CODE_DICT["UAH"])
         xrate = models.ExRate.get(id = 1)
         update_after = xrate.updated
         self.assertGreater(xrate.rate, 25)
@@ -83,11 +116,11 @@ class Test(unittest.TestCase):
         self.assertIn(text, api_log.response_text)
 
     def test_api_error(self):
-        api.HTTP_TIMEOUT = 0.001
+        api.HTTP_TIMEOUT = 0.01
         xrate = models.ExRate.get(id = 1)
         updated_before = xrate.updated
         self.assertEqual(xrate.rate, 1.0)
-        self.assertRaises(requests.RequestException, privatbank_json_api.PrivatJsonApi().update_xrate, TEST_CUR["USD"]['from_currency'], TEST_CUR["USD"]['to_currency'])
+        self.assertRaises(requests.RequestException, api.update_xrate, CODE_DICT["USD"], CODE_DICT["UAH"])
 
         xrate = models.ExRate.get(id = 1)
         updated_after = xrate.updated

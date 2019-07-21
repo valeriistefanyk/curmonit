@@ -2,7 +2,7 @@ from config import PRIVAT_API_XML
 import requests
 from api import _Api
 
-class PrivatXmlApi(_Api):
+class Api(_Api):
     def __init__(self):
         return super().__init__("PrivatXmlApi")
 
