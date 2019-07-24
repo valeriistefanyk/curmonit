@@ -35,3 +35,6 @@ def logger_setup(logger_name):
     return log
 
 HTTP_TIMEOUT = 15
+
+# 'WHITE' IP ADDRESSES
+IP_LIST = ['127.0.0.1', '127.2.2.2']
