@@ -48,6 +48,10 @@ class ErrorLog(_Model):
     error = TextField()
     traceback = TextField(null = True)
     created = DateTimeField(index = True, default = peewee_datetime.datetime.now)
+    
+    def json(self):
+        data = self.__data__
+        return data
 
 def init_db():
     # db.drop_tables(ExRate)

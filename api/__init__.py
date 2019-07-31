@@ -2,13 +2,14 @@ import traceback
 import requests
 import importlib
 from models import ExRate, peewee_datetime, ApiLog, ErrorLog
-from config import HTTP_TIMEOUT, LOGGER_CONFIG, logging
+from config import HTTP_TIMEOUT, LOGGER_CONFIG, logging, LOGGING
+from logging.config import dictConfig
 
 
-fh = logging.FileHandler(LOGGER_CONFIG["file"])
-fh.setLevel(LOGGER_CONFIG["level"])
-fh.setFormatter(LOGGER_CONFIG["formatter"])
-
+# fh = logging.FileHandler(LOGGER_CONFIG["file"])
+# fh.setLevel(LOGGER_CONFIG["level"])
+# fh.setFormatter(LOGGER_CONFIG["formatter"])
+dictConfig(LOGGING)
 
 def update_xrate(from_currency, to_currency):
     xrate = ExRate.select().where(ExRate.from_currency == from_currency, 
@@ -19,9 +20,8 @@ def update_xrate(from_currency, to_currency):
 
 class _Api:
     def __init__(self, logger_name):
-        self.log = logging.getLogger(logger_name)
-        self.log.addHandler(fh)
-        self.log.setLevel(LOGGER_CONFIG["level"])
+        self.log = logging.getLogger('Api')
+        self.log.name = logger_name
     
     def update_xrate(self, xrate):
         self.log.info("Started update rate for %s => %s" % (xrate.from_currency, xrate.to_currency))

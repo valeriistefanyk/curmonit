@@ -1,6 +1,7 @@
 from flask import render_template, make_response, jsonify, request, redirect, url_for
+from app import app
 import xmltodict
-from models import ExRate, ApiLog
+from models import ExRate, ApiLog, ErrorLog
 import api
 import datetime
 class BaseController:
@@ -57,7 +58,7 @@ class UpdateRates(BaseController):
         else:
             raise ValueError("from_currency and to_currency")
 
-        return redirect("/xrates")
+        return redirect(url_for('view_rates'))
 
     def _update_all(self):
         xrates = ExRate.select()
@@ -72,9 +73,15 @@ class UpdateRates(BaseController):
         
 
 class ViewLogs(BaseController):
-    def _call(self):
+    def _call(self, log_type):
+        app.logger.debug("log_type: %s" % log_type)
         page = int(self.request.args.get("page", 1))
-        logs = ApiLog.select().paginate(page, 10).order_by(ApiLog.id.desc())
+        logs_map = {"api": ApiLog, "error": ErrorLog}
+        if log_type not in logs_map: 
+            raise ValueError("Unknown log_type: %s" % log_type)
+
+        log_model = logs_map[log_type] 
+        logs = log_model.select().paginate(page, 10).order_by(log_model.id.desc())
         return render_template("logs.html", logs = logs)
 
 class EditRate(BaseController):

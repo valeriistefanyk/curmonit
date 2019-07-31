@@ -10,12 +10,43 @@ MONOBANK_API_JSON = "https://api.monobank.ua/bank/currency"
 CRYPTONATOR_BTC_TO_UAH = "https://api.cryptonator.com/api/ticker/btc-uah"
 
 # для тестов
-CODE_DICT= {
+CODE_DICT = {
     "USD": 840,
     "EUR": 978,
     "UAH": 980,
     "RUB": 643,
     "BTC": 1000
+}
+
+LOGGING = {
+    'version': 1,
+    'formatters': {
+        'default': {
+            'format': "[%(asctime)s] [%(levelname)s] - %(name)s:%(message)s",
+        },
+    },
+    
+    'handlers': {
+        'file': {
+            'class': 'logging.FileHandler',
+            'formatter': 'default',
+            'filename': 'app.log',
+        },
+    },
+    'loggers': {
+        'Curmonit': {
+            'handlers': ['file', ],
+            'level': logging.DEBUG
+        },
+        'Api': {
+            'handlers': ['file', ],
+            'level': logging.DEBUG
+        },
+        'Tasks': {
+            'handlers': ['file', ],
+            'level': logging.DEBUG
+        },
+    },
 }
 
 # настройки для логгирования
@@ -25,6 +56,7 @@ LOGGER_CONFIG = {
     "formatter": logging.Formatter("%(asctime)s [%(levelname)s]\t - \t%(name)s:%(message)s")
 }
 
+
 def logger_setup(logger_name):
     log = logging.getLogger(logger_name)
     fh = logging.FileHandler(LOGGER_CONFIG["file"])
@@ -33,6 +65,10 @@ def logger_setup(logger_name):
     log.addHandler(fh)
     log.setLevel(LOGGER_CONFIG["level"])
     return log
+
+
+
+
 
 HTTP_TIMEOUT = 15
 

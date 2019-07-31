@@ -19,7 +19,7 @@ def get_privat_response(*args, **kwds):
 
 class Test(unittest.TestCase):
     def setUp(self):
-        # models.init_db()
+        #models.init_db()
         pass
     
 
